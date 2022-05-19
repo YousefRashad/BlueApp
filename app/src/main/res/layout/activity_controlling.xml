@@ -5,13 +5,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Controlling">
+    <EditText
+        android:id="@+id/text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Serial Input"
+        android:layout_marginTop="150dp"
+        android:textSize="20sp"
+        />
+    <Button
+        android:id="@+id/send"
+        android:layout_width="150dp"
+        android:layout_height="100dp"
+        android:text="Send Serial"
+        android:layout_below="@id/text"
+        android:layout_marginTop="50dp"
+        android:layout_alignStart="@id/on"/>
 
     <Button
         android:id="@+id/on"
         android:layout_width="150dp"
         android:layout_height="100dp"
         android:layout_marginLeft="120dp"
-        android:layout_marginTop="200dp"
+        android:layout_below="@id/send"
         android:text="ON" />
 
     <Button
