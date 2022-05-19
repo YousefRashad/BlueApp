@@ -98,13 +98,14 @@ public class Controlling extends Activity {
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String s = text.toString();
+                String s = text.getText().toString();
                 try {
                     mBTSocket.getOutputStream().write(s.getBytes());
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
+                text.setText("");
             }
         });
     }
