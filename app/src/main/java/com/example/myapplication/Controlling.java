@@ -15,6 +15,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -41,7 +42,8 @@ public class Controlling extends Activity {
     final static String off = "79";// off
 
     private ProgressDialog progressDialog;
-    Button btnOn, btnOff;
+    Button btnOn, btnOff, btnSend;
+    EditText text;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +54,8 @@ public class Controlling extends Activity {
         // mBtnDisconnect = (Button) findViewById(R.id.btnDisconnect);
         btnOn = (Button) findViewById(R.id.on);
         btnOff = (Button) findViewById(R.id.off);
+        btnSend = (Button) findViewById(R.id.send);
+        text = (EditText) findViewById(R.id.text);
 
         Intent intent = getIntent();
         Bundle b = intent.getExtras();
@@ -91,7 +95,19 @@ public class Controlling extends Activity {
                 }
             }
         });
-
+        btnSend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String s = text.getText().toString();
+                try {
+                    mBTSocket.getOutputStream().write(s.getBytes());
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                text.setText("");
+            }
+        });
     }
 
     private class ReadInput implements Runnable {
