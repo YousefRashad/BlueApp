@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Controlling">
+    tools:context=".Controlling"
+    android:background="@drawable/bg">
     <EditText
         android:id="@+id/text"
         android:layout_width="match_parent"
@@ -12,6 +13,8 @@
         android:hint="Enter Serial Input"
         android:layout_marginTop="150dp"
         android:textSize="20sp"
+        android:textColor="@color/white"
+        android:textColorHint="@color/grey"
         />
     <Button
         android:id="@+id/send"
