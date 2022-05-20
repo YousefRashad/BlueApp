@@ -29,16 +29,8 @@
         android:id="@+id/on"
         android:layout_width="150dp"
         android:layout_height="100dp"
-        android:layout_marginLeft="120dp"
         android:layout_below="@id/send"
-        android:text="ON" />
+        android:layout_marginLeft="120dp"
+        android:text="Monitoring Screen" />
 
-    <Button
-        android:id="@+id/off"
-        android:layout_width="150dp"
-        android:layout_height="100dp"
-        android:text="Off"
-        android:layout_below="@+id/on"
-        android:layout_alignStart="@+id/on"
-/>
 </RelativeLayout>

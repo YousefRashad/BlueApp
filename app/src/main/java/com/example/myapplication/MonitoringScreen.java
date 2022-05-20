@@ -1,7 +1,8 @@
 package com.example.myapplication;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.UUID;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -10,88 +11,75 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ArrayAdapter;
+import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ListView;
+import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Set;
-import java.util.UUID;
+public class MonitoringScreen extends Activity {
 
-public class Controlling extends Activity {
-    private int mBufferSize = 50000; // Default
-    public static final String DEVICE_EXTRA = "com.example.myapplication.SOCKET";
-    public static final String DEVICE_UUID = "com.example.myapplication.uuid";
-    private static final String DEVICE_LIST = "com.example.myapplication.devicelist";
-    private static final String DEVICE_LIST_SELECTED = "com.example.myapplication.devicelistselected";
-    public static final String BUFFER_SIZE = "com.example.myapplication.buffersize";
-    private static final String TAG = "BlueTest5-Controlling";
-    private int mMaxChars = 50000;// Default//change this to string..........
+    private static final String TAG = "BlueTest5-MainActivity";
+    private int mMaxChars = 50000;//Default
     private UUID mDeviceUUID;
     private BluetoothSocket mBTSocket;
     private ReadInput mReadThread = null;
 
+
     private boolean mIsUserInitiatedDisconnect = false;
+
+    // All controls here
+    private TextView mTxtReceive;
+    private Button mBtnClearInput;
+    private ScrollView scrollView;
+    private CheckBox chkScroll;
+    private CheckBox chkReceiveText;
+
+
     private boolean mIsBluetoothConnected = false;
 
-    private Button mBtnDisconnect;
     private BluetoothDevice mDevice;
 
-    final static String on = "92";// on
-    final static String off = "79";// off
-
     private ProgressDialog progressDialog;
-    Button btnOn, btnOff, btnSend;
-    EditText text;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_controlling);
-
+        setContentView(R.layout.activity_monitoring_screen);
         ActivityHelper.initialize(this);
-        // mBtnDisconnect = (Button) findViewById(R.id.btnDisconnect);
-        btnOn = (Button) findViewById(R.id.on);
-        btnSend = (Button) findViewById(R.id.send);
-        text = (EditText) findViewById(R.id.text);
 
         Intent intent = getIntent();
         Bundle b = intent.getExtras();
         mDevice = b.getParcelable(MainActivity.DEVICE_EXTRA);
         mDeviceUUID = UUID.fromString(b.getString(MainActivity.DEVICE_UUID));
         mMaxChars = b.getInt(MainActivity.BUFFER_SIZE);
-
         Log.d(TAG, "Ready");
+        mTxtReceive = (TextView) findViewById(R.id.txtReceive);
+        chkScroll = (CheckBox) findViewById(R.id.chkScroll);
+        chkReceiveText = (CheckBox) findViewById(R.id.chkReceiveText);
+        scrollView = (ScrollView) findViewById(R.id.viewScroll);
+        mBtnClearInput = (Button) findViewById(R.id.btnClearInput);
+        mTxtReceive.setMovementMethod(new ScrollingMovementMethod());
 
-        btnOn.setOnClickListener(new View.OnClickListener() {
+
+
+
+
+
+        mBtnClearInput.setOnClickListener(new OnClickListener() {
 
             @Override
-            public void onClick(View v) {
-                // TODO Auto-generated method stub
-                switchActivities();
+            public void onClick(View arg0) {
+                mTxtReceive.setText("");
             }
         });
 
-        btnSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String s = text.getText().toString();
-                try {
-                    mBTSocket.getOutputStream().write(s.getBytes());
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                text.setText("");
-            }
-        });
+
     }
 
     private class ReadInput implements Runnable {
@@ -120,26 +108,47 @@ public class Controlling extends Activity {
                         inputStream.read(buffer);
                         int i = 0;
                         /*
-                         * This is needed because new String(buffer) is taking the entire buffer i.e.
-                         * 256 chars on Android 2.3.4 http://stackoverflow.com/a/8843462/1287554
+                         * This is needed because new String(buffer) is taking the entire buffer i.e. 256 chars on Android 2.3.4 http://stackoverflow.com/a/8843462/1287554
                          */
                         for (i = 0; i < buffer.length && buffer[i] != 0; i++) {
                         }
                         final String strInput = new String(buffer, 0, i);
 
                         /*
-                         * If checked then receive text, better design would probably be to stop thread
-                         * if unchecked and free resources, but this is a quick fix
+                         * If checked then receive text, better design would probably be to stop thread if unchecked and free resources, but this is a quick fix
                          */
+
+                        if (chkReceiveText.isChecked()) {
+                            mTxtReceive.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mTxtReceive.append(strInput);
+
+                                    int txtLength = mTxtReceive.getEditableText().length();
+                                    if(txtLength > mMaxChars){
+                                        mTxtReceive.getEditableText().delete(0, txtLength - mMaxChars);
+                                    }
+
+                                    if (chkScroll.isChecked()) { // Scroll only if this is checked
+                                        scrollView.post(new Runnable() { // Snippet from http://stackoverflow.com/a/4612082/1287554
+                                            @Override
+                                            public void run() {
+                                                scrollView.fullScroll(View.FOCUS_DOWN);
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+                        }
 
                     }
                     Thread.sleep(500);
                 }
             } catch (IOException e) {
-                // TODO Auto-generated catch block
+// TODO Auto-generated catch block
                 e.printStackTrace();
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
+// TODO Auto-generated catch block
                 e.printStackTrace();
             }
 
@@ -158,7 +167,7 @@ public class Controlling extends Activity {
         }
 
         @Override
-        protected Void doInBackground(Void... params) {// cant inderstand these dotss
+        protected Void doInBackground(Void... params) {
 
             if (mReadThread != null) {
                 mReadThread.stop();
@@ -171,7 +180,7 @@ public class Controlling extends Activity {
             try {
                 mBTSocket.close();
             } catch (IOException e) {
-                // TODO Auto-generated catch block
+// TODO Auto-generated catch block
                 e.printStackTrace();
             }
 
@@ -219,7 +228,7 @@ public class Controlling extends Activity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        // TODO Auto-generated method stub
+// TODO Auto-generated method stub
         super.onSaveInstanceState(outState);
     }
 
@@ -228,9 +237,7 @@ public class Controlling extends Activity {
 
         @Override
         protected void onPreExecute() {
-
-            progressDialog = ProgressDialog.show(Controlling.this, "Hold on", "Connecting");// http://stackoverflow.com/a/11130220/1287554
-
+            progressDialog = ProgressDialog.show(MonitoringScreen.this, "Hold on", "Connecting");// http://stackoverflow.com/a/11130220/1287554
         }
 
         @Override
@@ -243,10 +250,9 @@ public class Controlling extends Activity {
                     mBTSocket.connect();
                 }
             } catch (IOException e) {
-                // Unable to connect to device`
-                // e.printStackTrace();
+// Unable to connect to device
+                e.printStackTrace();
                 mConnectSuccessful = false;
-
             }
             return null;
         }
@@ -256,8 +262,7 @@ public class Controlling extends Activity {
             super.onPostExecute(result);
 
             if (!mConnectSuccessful) {
-                Toast.makeText(getApplicationContext(), "Could not connect to device.Please turn on your Hardware",
-                        Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Could not connect to device. Is it a Serial device? Also check if the UUID is correct in the settings", Toast.LENGTH_LONG).show();
                 finish();
             } else {
                 msg("Connected to device");
@@ -270,16 +275,6 @@ public class Controlling extends Activity {
 
     }
 
-    @Override
-    protected void onDestroy() {
-        // TODO Auto-generated method stub
-        super.onDestroy();
-    }
-    private void switchActivities() {
-        Intent intent = new Intent(getApplicationContext(), MonitoringScreen.class);
-        intent.putExtra(DEVICE_EXTRA, mDevice);
-        intent.putExtra(DEVICE_UUID, mDeviceUUID.toString());
-        intent.putExtra(BUFFER_SIZE, mBufferSize);
-        startActivity(intent);
-    }
+
+
 }
