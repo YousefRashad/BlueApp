@@ -62,7 +62,9 @@
                 android:typeface="monospace"
                 android:hint="Message shows up here ..."
                 android:scrollbars="vertical"
-                android:layout_marginTop="20dp"/>
+                android:layout_marginTop="20dp"
+                android:textColorHint="@color/grey"
+                android:textColor="@color/black"/>
         </ScrollView>
     </LinearLayout>
 

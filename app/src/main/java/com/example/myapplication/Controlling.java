@@ -26,6 +26,12 @@ import java.util.Set;
 import java.util.UUID;
 
 public class Controlling extends Activity {
+    private int mBufferSize = 50000; // Default
+    public static final String DEVICE_EXTRA = "com.example.myapplication.SOCKET";
+    public static final String DEVICE_UUID = "com.example.myapplication.uuid";
+    private static final String DEVICE_LIST = "com.example.myapplication.devicelist";
+    private static final String DEVICE_LIST_SELECTED = "com.example.myapplication.devicelistselected";
+    public static final String BUFFER_SIZE = "com.example.myapplication.buffersize";
     private static final String TAG = "BlueTest5-Controlling";
     private int mMaxChars = 50000;// Default//change this to string..........
     private UUID mDeviceUUID;
@@ -69,8 +75,7 @@ public class Controlling extends Activity {
             @Override
             public void onClick(View v) {
                 // TODO Auto-generated method stub
-                Intent intent1 = new Intent(Controlling.this, MonitoringScreen.class);
-                startActivity(intent1);
+                switchActivities();
             }
         });
 
@@ -269,5 +274,12 @@ public class Controlling extends Activity {
     protected void onDestroy() {
         // TODO Auto-generated method stub
         super.onDestroy();
+    }
+    private void switchActivities() {
+        Intent intent = new Intent(getApplicationContext(), MonitoringScreen.class);
+        intent.putExtra(DEVICE_EXTRA, mDevice);
+        intent.putExtra(DEVICE_UUID, mDeviceUUID.toString());
+        intent.putExtra(BUFFER_SIZE, mBufferSize);
+        startActivity(intent);
     }
 }
