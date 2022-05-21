@@ -44,9 +44,6 @@ public class Controlling extends Activity {
     private Button mBtnDisconnect;
     private BluetoothDevice mDevice;
 
-    final static String on = "92";// on
-    final static String off = "79";// off
-
     private ProgressDialog progressDialog;
     Button btnOn, btnOff, btnSend;
     EditText text;
